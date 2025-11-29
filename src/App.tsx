@@ -1,15 +1,12 @@
 import { createAppKit } from '@reown/appkit/react'
-
 import { WagmiProvider } from 'wagmi'
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ActionButtonList } from './components/ActionButtonList'
-import { InfoList } from './components/InfoList'
-import { projectId, metadata, networks, wagmiAdapter , solanaWeb3JsAdapter} from './config'
-
-import "./App.css"
-
-
+import { projectId, metadata, networks, wagmiAdapter, solanaWeb3JsAdapter } from './config'
+import { Layout } from './components/common/Layout'
+import { SwapPage } from './components/swap/SwapPage'
+import { Dashboard } from './components/dashboard/Dashboard'
+import { useView } from './hooks/useStore'
+import './App.css'
 
 const queryClient = new QueryClient()
 
@@ -17,41 +14,39 @@ const generalConfig = {
   projectId,
   metadata,
   networks,
-  themeMode: 'light' as const,
+  themeMode: 'dark' as const,
   features: {
-    analytics: true // Optional - defaults to your Cloud configuration
+    analytics: true
   },
   themeVariables: {
-    '--w3m-accent': '#000000',
+    '--w3m-accent': '#6366f1',
+    '--w3m-border-radius-master': '12px'
   }
 }
 
-// Create modal
 createAppKit({
   adapters: [wagmiAdapter, solanaWeb3JsAdapter],
   ...generalConfig,
 })
 
-export function App() {
+function AppContent() {
+  const view = useView()
 
   return (
-    <div className={"pages"}>
-      <img src="/reown.svg" alt="Reown" style={{ width: '150px', height: '150px' }} />
-      <h1>AppKit Wagmi+solana React dApp Example</h1>
-      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-            <appkit-button />
-            <ActionButtonList />
-            <div className="advice">
-              <p>
-                This projectId only works on localhost. <br/>
-                Go to <a href="https://dashboard.reown.com" target="_blank" className="link-button" rel="Reown Dashboard">Reown Dashboard</a> to get your own.
-              </p>
-            </div>
-            <InfoList />
-        </QueryClientProvider>
-      </WagmiProvider>
-    </div>
+    <Layout>
+      {view === 'swap' && <SwapPage />}
+      {view === 'dashboard' && <Dashboard />}
+    </Layout>
+  )
+}
+
+export function App() {
+  return (
+    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <AppContent />
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 

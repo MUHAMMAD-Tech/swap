@@ -1,83 +1,96 @@
-# Reown AppKit React dApp
+# Lethex - Multi-chain Swap Platform
 
 ## Overview
-This is a React-based decentralized application (dApp) example using Reown AppKit (formerly WalletConnect) for Web3 wallet integration. The project demonstrates multi-chain support for both EVM-compatible chains (Ethereum, Arbitrum) and Solana networks.
+Lethex is a production-ready multi-chain token swap application that supports same-chain swaps across multiple blockchain ecosystems. The platform integrates with major DEX aggregators and applies a 0.08% trading fee.
 
 **Tech Stack:**
-- React 19.0.0
-- Vite 6.2.0 (build tool)
-- TypeScript
-- Reown AppKit 1.8.12 (wallet connection)
-- Wagmi 2.12.14 (Ethereum integration)
-- Solana Web3.js (Solana integration)
-- TanStack React Query (data fetching)
+- Frontend: React 19, TypeScript, Vite
+- Backend: Node.js, Express, TypeScript
+- Wallet: Reown AppKit (formerly WalletConnect)
+- State: Custom store with useSyncExternalStore
+- DEX Aggregators: Uniswap (EVM), Jupiter (Solana)
 
-**Current Status:** ✅ Fully configured and running in Replit environment
+**Supported Chains:**
+- EVM: Ethereum, Arbitrum, Optimism, Base, Linea
+- Non-EVM: Solana, Sui (coming soon)
+
+**Current Status:** Running - Frontend on port 5000, Backend on port 3001
 
 ## Project Structure
 ```
-├── public/               # Static assets (favicon, logos)
-├── src/
-│   ├── assets/          # React logo and other assets
-│   ├── components/      # React components
-│   │   ├── ActionButtonList.tsx
-│   │   └── InfoList.tsx
-│   ├── config/          # AppKit configuration
-│   │   └── index.tsx
-│   ├── css/             # Stylesheets
-│   ├── App.tsx          # Main app component
-│   └── main.tsx         # Entry point
-├── vite.config.ts       # Vite configuration (configured for Replit)
-└── package.json         # Dependencies
+├── server/                    # Backend Express server
+│   ├── src/
+│   │   ├── modules/
+│   │   │   ├── chain-registry/   # Chain configuration
+│   │   │   ├── token-registry/   # Token lists
+│   │   │   ├── fee-engine/       # 0.08% fee calculation
+│   │   │   ├── swap-core/        # Swap execution
+│   │   │   └── history-service/  # Transaction history
+│   │   ├── config/
+│   │   │   └── constants.ts      # Fee wallets, amounts
+│   │   └── index.ts              # Server entry
+│   └── package.json
+├── src/                       # Frontend React app
+│   ├── components/
+│   │   ├── common/              # Layout, Modal
+│   │   ├── swap/                # SwapPage, TokenSelector, ChainSelector
+│   │   └── dashboard/           # Dashboard component
+│   ├── hooks/                   # useStore hooks
+│   ├── store/                   # swapStore (state management)
+│   ├── services/                # API service layer
+│   ├── config/                  # AppKit configuration
+│   └── types/                   # TypeScript interfaces
+├── vite.config.ts             # Vite with API proxy
+└── package.json               # Concurrent dev scripts
 ```
 
 ## Recent Changes (Nov 29, 2025)
-- ✅ Configured Vite to run on port 5000 with host 0.0.0.0
-- ✅ Added `allowedHosts: true` to support Replit's proxy/iframe environment
-- ✅ Installed all npm dependencies
-- ✅ Set up development workflow
-- ✅ Configured static deployment (builds to `dist/`)
+- Complete architecture with modular backend/frontend
+- Implemented fee engine with 0.08% fee (FEE_PERCENT = 0.0008)
+- Configured fee wallets:
+  - EVM: 0xBB9aFDf086B0d33421086b1D464DaEA1CB197D7E
+  - Solana: HeNZH4vEc2htjYSPU9drniGkjbm9h1LotSKkVnb3VWed
+  - Sui: 0xb493de737f46082a2020ab1f6f06dbb07be074b67b6fb152a4eb169cbbba01ac
+- WalletConnect integration with projectId d8e3dff41439cfcce2d989139519cd49
+- Token selector with search and custom token validation
+- Dashboard for swap history and statistics
+- Fixed infinite loop issues in React hooks using proper memoization
 
 ## Development Setup
 
-### Running Locally
-The app runs automatically via the "Start application" workflow. To manually start:
+### Running the Application
+Both frontend and backend start concurrently:
 ```bash
 npm run dev
 ```
-The dev server runs on port 5000 and is accessible through Replit's webview.
+- Frontend: http://localhost:5000 (Vite dev server)
+- Backend: http://localhost:3001 (Express API)
+
+### API Endpoints
+- GET /api/chains - List supported chains
+- GET /api/tokens/:chainId - Get tokens for chain
+- POST /api/tokens/validate - Validate custom token
+- POST /api/quote - Get swap quote with fee
+- POST /api/swap - Execute swap
+- GET /api/history - Get swap history
+- GET /api/stats - Get aggregated statistics
 
 ### Environment Variables
-- `VITE_PROJECT_ID`: Reown (WalletConnect) project ID
-  - Default: Includes a demo project ID for localhost testing
-  - For production: Get your own from [Reown Dashboard](https://dashboard.reown.com)
+- WalletConnect projectId is hardcoded for development
+- For production: Register domain at https://dashboard.reown.com
 
-### Building for Production
-```bash
-npm run build
-```
-Output is in the `dist/` directory.
+## Architecture Notes
+- Backend handles fee calculations server-side for security
+- Vite proxy forwards /api requests to backend
+- Custom store pattern avoids Redux complexity
+- Token lists cached with user tokens in localStorage
+- Chain registry supports easy addition of new chains
 
-## Deployment Configuration
-- **Type:** Static deployment
-- **Build command:** `npm run build`
-- **Output directory:** `dist`
-- The app can be published directly from Replit
-
-## Features
-- Multi-chain wallet connection (EVM + Solana)
-- Support for mainnet and testnets
-- Connect/disconnect wallet functionality
-- Chain switching
-- Network: Ethereum Mainnet, Arbitrum, Solana Mainnet/Devnet/Testnet
+## Fee Configuration
+- Fee Percent: 0.08% (0.0008)
+- Minimum Fee: Chain-specific (configurable)
+- Maximum Fee: Chain-specific (configurable)
+- Fee collected before swap execution
 
 ## User Preferences
 None documented yet.
-
-## Architecture Notes
-- Frontend-only dApp (no backend required)
-- Uses Reown AppKit for wallet abstraction
-- Wagmi adapter handles EVM chains
-- Solana adapter handles Solana chains
-- Query client manages async state
-- Configured for Replit's proxy environment with `allowedHosts: true`
